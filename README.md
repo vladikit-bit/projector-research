@@ -1,30 +1,23 @@
-# Дослідження проектору Thundeal TD.98 Pro (MStar MT5889) — головний репозиторій
+# Projector research — Thundeal TD.98 Pro (MStar MT5889)
 
-Форензик-реверс інженерія проектора **Thundeal TD.98 Pro / C50A** (MStar MT5889, Android 11, ODM Ntech), 2026-08-26 → 2026-10-04. Мета — вичавити максимум поза заводськими обмеженнями: аудіо-пастру, Dolby Vision, режими картинки, 3D.
+Forensic reverse-engineering of an Android 11 projector (Thundeal TD.98 Pro / C50A, MStar MT5889, Ntech ODM firmware), Aug–Oct 2026. Goal: unlock what the stock firmware caps — audio passthrough, Dolby Vision, display modes, 3D.
 
-**Звідси починайте:**
-1. [TIMELINE.md](TIMELINE.md) — відновлена історія по датах: що міняли, які гіпотези, що знайшли, як перевіряли, що відкинули.
-2. [STATUS.md](STATUS.md) — поточний стан кожної лінії і наступні кроки.
-3. [CROSS_REFERENCES.md](CROSS_REFERENCES.md) — 23 ланцюги «гіпотеза → спростування», дублі, нерозв'язані суперечності.
-4. [DEVICE.md](DEVICE.md) — паспорт пристрою.
+**Start here:**
+- **[TIMELINE.md](TIMELINE.md)** — restored project history: what was changed, which hypotheses were tested, what was confirmed or refuted (2026-08-26 → 2026-10-04)
+- **[STATUS.md](STATUS.md)** — current state of every research line + next steps
+- **[CROSS_REFERENCES.md](CROSS_REFERENCES.md)** — 23 hypothesis → refutation chains
+- **[DEVICE.md](DEVICE.md)** — device identification
 
-## П'ять лінії (`lines/`)
+**Five research lines** (in `lines/`, each with a SYNOPSIS + primary reports):
 
-| Папка | Лінія | Статус | Суть |
-|---|---|---|---|
-| `01-dd-spdif/` | DD/SPDIF-пастру | ✅ успіх | libmi3 caps-патч + Kodi RAW → AC3/EAC3 працює (SYNOPSIS) |
-| `02-dts/` | DTS-пастру | ⏳ відкрита | декодер ОК, блок = 2 runtime-слова в DEC-DSP; 170 документів |
-| `03-dolby-vision/` | Dolby Vision | ⏳ калібрування | залізо є; dolby.bin без customer IP mode; NLA.ini-калібрування |
-| `04-picture-modes/` | режими картинки | ⏳ патч готовий | 2 захардкоджені 1080p50/60 у HWC; платформа вміє 4K@24-60; патч ~250 Б специфікований |
-| `05-3d/` | 3D | ⏳ не почата | DLP 120Гц-панель в образі; Android-обв'язки немає |
+| Folder | Line | Status |
+|---|---|---|
+| `01-dd-spdif/` | DD/AC3 passthrough over SPDIF | ✅ works — libmi3 caps patch + Kodi RAW sink |
+| `02-dts/` | DTS passthrough | ⏳ open — decoder runs, output blocked by two runtime words in the DEC DSP (170 documents) |
+| `03-dolby-vision/` | Dolby Vision | ⏳ HW present; PQ binary lacks customer IP mode; colour calibration in progress |
+| `04-picture-modes/` | Display modes beyond 1080p 50/60 Hz | ⏳ root cause proven (2 hardcoded HWC configs); ~250-byte patch designed, not emitted |
+| `05-3d/` | 3D | ⏳ 120 Hz DLP panel present in firmware; Android plumbing missing |
 
-Кожна папка: `SYNOPSIS.md` (стислий підсумок арки: підтверджене/спростоване/незавершене) + копії первинних звітів.
+**Companion repos:** [projector-research-base](https://github.com/vladikit-bit/projector-research-base) (all 285 research .md files, unsorted) · [projector-diagnostic-tools](https://github.com/vladikit-bit/projector-diagnostic-tools) (scripts & tooling) · [projector-passthrough-dd-restore](https://github.com/vladikit-bit/projector-passthrough-dd-restore) (OTA recovery guide + fix binaries) · [tcl-t615t-firmware-analysis](https://github.com/vladikit-bit/tcl-t615t-firmware-analysis) (donor firmwares for differential analysis).
 
-## Супутні репозиторії
-- [projector-research-base](https://github.com/vladikit-bit/projector-research-base) — **всі 285 .md як є** (без сортування) + INDEX.
-- [projector-diagnostic-tools](https://github.com/vladikit-bit/projector-diagnostic-tools) — скрипти/інструменти з документацією.
-- [projector-passthrough-dd-restore](https://github.com/vladikit-bit/projector-passthrough-dd-restore) — відновлення AC3-фіксу після OTA (гайд + скрипт + libmi3).
-- [tcl-t615t-firmware-analysis](https://github.com/vladikit-bit/tcl-t615t-firmware-analysis) — донорські TCL-прошивки (дифи для DTS-лінії).
-
-## Методологічна примітка
-Первинні документи — логи AI-сесій (код-назви GLM/forensic_space_bunny/MUSE/LongCat/Union Alpha), збережені як є; свідомо залишено помилки та їхні подальші виправлення — це частина доказового ланцюга. Консолідована, вивірена картина — тут. Сесійні архіви повних траєкторій: `projector-research-base/Бекап розслідування/` (7 FULL_UNION + 13 субагентських траєкторій, snapshot 2026-09-18).
+> Research documents are written in Ukrainian (see [README.ua.md](README.ua.md)); this README is the English entry point.
